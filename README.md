@@ -28,16 +28,23 @@ pip install -r requirements.txt
 ```
 3. Create a `.env` file with your API keys:
 ```
-SHODAN_API_KEY=your_shodan_key
+
 VIRUSTOTAL_API_KEY=your_virustotal_key
-CENSYS_API_ID=your_censys_id
-CENSYS_API_SECRET=your_censys_secret
+GOOGLE_API_KEY=your_google_api_key
 ```
 
+4.Create a `python virtual enviroment` :
+
+open the powershell and type the below command
+```bash
+python -m venv venv
+.\venv\Scripts\activate
+```
+then run step 2
 ## Usage
 
 ```bash
-python domain_recon.py --domain example.com
+python app.py
 ```
 
 ## Legal Disclaimer
