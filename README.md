@@ -28,16 +28,14 @@ pip install -r requirements.txt
 ```
 3. Create a `.env` file with your API keys:
 ```
-SHODAN_API_KEY=your_shodan_key
+GOOGLE_API_KEY=your_google_api_key
 VIRUSTOTAL_API_KEY=your_virustotal_key
-CENSYS_API_ID=your_censys_id
-CENSYS_API_SECRET=your_censys_secret
 ```
 
 ## Usage
 
 ```bash
-python domain_recon.py --domain example.com
+python app.py
 ```
 
 ## Legal Disclaimer
