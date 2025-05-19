@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-search me-2"></i>Domain Security Analysis</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('analyze') }}">
+                    <div class="mb-3">
+                        <label for="domain" class="form-label">Enter Domain or Website URL</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                            <input type="text" class="form-control" id="domain" name="domain" 
+                                placeholder="example.com" required>
+                        </div>
+                        <div class="form-text">Enter a domain name without http/https prefix</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-radar me-2"></i>Analyze Security
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3><i class="fas fa-info-circle me-2"></i>About This Tool</h3>
+            </div>
+            <div class="card-body">
+                <p>This Domain Security Analyzer provides comprehensive security analysis of any domain or website, including:</p>
+                <ul>
+                    <li><i class="fas fa-address-card text-primary me-2"></i>WHOIS Information</li>
+                    <li><i class="fas fa-server text-primary me-2"></i>DNS Records</li>
+                    <li><i class="fas fa-lock text-primary me-2"></i>SSL/TLS Configuration</li>
+                    <li><i class="fas fa-shield-alt text-primary me-2"></i>Security Headers</li>
+                    <li><i class="fas fa-bug text-primary me-2"></i>Known Vulnerabilities</li>
+                    <li><i class="fas fa-robot text-primary me-2"></i>AI-powered Security Analysis</li>
+                </ul>
+                <p>All data is collected from publicly available sources.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

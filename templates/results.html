@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <i class="fas fa-globe me-2"></i>
+                    Domain Analysis Report: {{ data.domain }}
+                    <small class="text-muted">{{ data.timestamp }}</small>
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-primary">
+                    <i class="fas fa-info-circle me-2"></i> Analysis complete for <strong>{{ data.domain }}</strong>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="trafficChart" style="height: 300px;"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h3 class="mb-0">Security Score</h3>
+                            </div>
+                            <div class="card-body d-flex align-items-center justify-content-center">
+                                <div class="text-center">
+                                    <div class="security-score">85</div>
+                                    <p>out of 100</p>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 85%;" 
+                                             aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- AI Insights -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3><i class="fas fa-robot me-2"></i>AI Security Analysis</h3>
+            </div>
+            <div class="card-body">
+                <pre class="bg-light p-3" style="white-space: pre-wrap;">{{ data.ai_insights }}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- DNS Information -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3><i class="fas fa-server me-2"></i>DNS Records</h3>
+            </div>
+            <div class="card-body">
+                {% if data.dns %}
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record_type, records in data.dns.items() %}
+                                {% if records is iterable and records is not string %}
+                                    {% for record in records %}
+                                        <tr>
+                                            <td><strong>{{ record_type }}</strong></td>
+                                            <td>{{ record }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td><strong>{{ record_type }}</strong></td>
+                                        <td>{{ records }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No DNS information available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- SSL/TLS Information -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3><i class="fas fa-lock me-2"></i>SSL/TLS Certificate</h3>
+            </div>
+            <div class="card-body">
+                {% if data.ssl %}
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <td><strong>Subject</strong></td>
+                                <td>{{ data.ssl.subject }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Issuer</strong></td>
+                                <td>{{ data.ssl.issuer }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Version</strong></td>
+                                <td>{{ data.ssl.version }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Expires</strong></td>
+                                <td>{{ data.ssl.not_after }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protocol</strong></td>
+                                <td>{{ data.ssl.protocol }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cipher</strong></td>
+                                <td>{{ data.ssl.cipher }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    {% if data.ssl_vulnerabilities %}
+                        <h5 class="mt-3">SSL/TLS Vulnerabilities</h5>
+                        <div class="list-group">
+                            {% for vuln in data.ssl_vulnerabilities %}
+                                <div class="list-group-item list-group-item-danger">
+                                    <i class="fas fa-exclamation-triangle me-2"></i> {{ vuln }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-check-circle me-2"></i> No SSL/TLS vulnerabilities detected
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <p>No SSL/TLS information available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Headers -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3><i class="fas fa-shield-alt me-2"></i>Security Headers</h3>
+            </div>
+            <div class="card-body">
+                {% if data.security_headers %}
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Header</th>
+                                <th>Value</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for header, info in data.security_headers.items() %}
+                                <tr>
+                                    <td><strong>{{ header }}</strong></td>
+                                    <td>{{ info.value|truncate(50) }}</td>
+                                    <td>
+                                        {% if info.status == "good" %}
+                                            <span class="badge bg-success">Good</span>
+                                        {% elif info.status == "warning" %}
+                                            <span class="badge bg-warning text-dark">Warning</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Missing</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No security header information available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Shodan Data -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3><i class="fas fa-server me-2"></i>Shodan Information</h3>
+            </div>
+            <div class="card-body">
+                {% if data.shodan_data %}
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <td><strong>IP</strong></td>
+                                <td>{{ data.shodan_data.ip_str }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Organization</strong></td>
+                                <td>{{ data.shodan_data.org }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Country</strong></td>
+                                <td>{{ data.shodan_data.country_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>OS</strong></td>
+                                <td>{{ data.shodan_data.os or 'Unknown' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    {% if data.shodan_data.ports %}
+                        <h5 class="mt-3">Open Ports</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for port in data.shodan_data.ports %}
+                                <span class="badge bg-info">{{ port }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <p>No Shodan information available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- WHOIS Information -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3><i class="fas fa-address-card me-2"></i>WHOIS Information</h3>
+            </div>
+            <div class="card-body">
+                {% if data.whois %}
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <td><strong>Registrar</strong></td>
+                                <td>{{ data.whois.registrar }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Creation Date</strong></td>
+                                <td>{{ data.whois.creation_date }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Expiration Date</strong></td>
+                                <td>{{ data.whois.expiration_date }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Updated Date</strong></td>
+                                <td>{{ data.whois.updated_date }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Name Servers</strong></td>
+                                <td>
+                                    {% if data.whois.name_servers is iterable and data.whois.name_servers is not string %}
+                                        {{ data.whois.name_servers|join(', ') }}
+                                    {% else %}
+                                        {{ data.whois.name_servers }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No WHOIS information available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mb-4">
+    <div class="col-md-8">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Back to Search</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // The data is already JSON, no need to parse it
+    var graphJSON = {{ data.traffic_chart|safe }};
+    Plotly.newPlot('trafficChart', graphJSON.data, graphJSON.layout);
+});
+</script>
+{% endblock %} 
